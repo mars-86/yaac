@@ -1,0 +1,3 @@
+[submodule "lib/string-manip"]
+	path = lib/string-manip
+	url = https://github.com/mars-86/string-manip.git
