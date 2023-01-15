@@ -1,8 +1,8 @@
 #ifndef __YAAC_CORE_LEXER_INCLUDED_H__
 #define __YAAC_CORE_LEXER_INCLUDED_H__
 
-typedef struct symtab symtab_t;
+typedef struct token token_t;
 
-int tokenize(const char *src, const symtab_t *symtab);
+token_t *get_token(const char *src);
 
 #endif // __YAAC_CORE_LEXER_INCLUDED_H__

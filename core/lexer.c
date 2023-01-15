@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "symtab.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,61 +40,22 @@ struct token
     char val[64];
 };
 
-typedef struct token token_t;
-
-struct symtab
-{
-    token_t token;
-};
-
 static token_t *gen_token(const char *name, const char *value, int n)
 {
-    token_t *tok = (token_t *)malloc(sizeof(token_t));
-    memcpy(tok->name, name, strlen(name));
-    memcpy(tok->val, value, n);
+    token_t *token = (token_t *)malloc(sizeof(token_t));
+    memcpy(token->name, name, strlen(name));
+    memcpy(token->val, value, n);
     // memccpy(sym->val, value, n, 64);
-    tok->name[strlen(name)] = '\0';
-    tok->val[n] = '\0';
+    token->name[strlen(name)] = '\0';
+    token->val[n] = '\0';
 
 #ifdef __DEBUG
-    printf("SYM: %s,%s\n", tok->name, tok->val);
+    printf("SYM: %s,%s\n", token->name, token->val);
 #endif
-    return tok;
+    return token;
 }
 
-static int scan(const char *src, token_t **tokens)
-{
-    char __buff[MAX_BUFF], *__buff_p = __buff;
-    int i;
-    for (i = 0; *src != '\0'; ++src, ++i) {
-        if (IS_SPEC_CHAR(*src))
-            --i;
-        else if (IS_EQUAL(*src))
-            *(tokens + i) = gen_token("operator", src, 1);
-        else if (IS_OPEN_BRACKET(*src))
-            *(tokens + i) = gen_token("separator", src, 1);
-        else if (IS_CLOSE_BRACKET(*src))
-            *(tokens + i) = gen_token("separator", src, 1);
-        else if (IS_LETTER(*src)) {
-            COPY_BYTES(*__buff_p, *src, IS_IDENTIFIER(*src));
-            *(tokens + i) = gen_token("identifier", __buff, strlen(__buff));
-            __buff_p = __buff;
-        }
-        else if (IS_NUMBER(*src))
-            *(tokens + i) = gen_token("literal", src, 1);
-        else if (IS_MINUS(*src))
-            *(tokens + i) = gen_token("operator", src, 1);
-        else if (IS_SINGLE_QUOTE(*src))
-            *(tokens + i) = gen_token("literal", ++src, 1), ++src;
-        else if (IS_DOUBLE_QUOTE(*src))
-            *(tokens + i) = gen_token("literal", src, 1);
-    }
-    *(tokens + i) = NULL;
-
-    return 1;
-}
-
-static char *scan2(char *dest, const char *src)
+static char *scan(char *dest, const char *src)
 {
     char *__dest_p = dest;
     while (*src != '\0') {
@@ -135,22 +97,5 @@ token_t *get_token(const char *src)
             return gen_token("literal", ++src, 1), ++src;
         else if (IS_DOUBLE_QUOTE(*src))
             return gen_token("literal", src, 1);
-    }
-}
-
-int tokenize(const char *src, const symtab_t *symtab)
-{
-    token_t *__tokens[128];
-    // scan(src, &__tokens[0]);
-    char dest[MAX_BUFF];
-    scan2(dest, src);
-
-    printf("%s\n", dest);
-    return 1;
-    int i;
-    printf("Tokens:\n");
-    for (i = 0; __tokens[i] != NULL; ++i) {
-        printf("%s,%s\n", __tokens[i]->name, __tokens[i]->val);
-        free(__tokens[i]);
     }
 }
